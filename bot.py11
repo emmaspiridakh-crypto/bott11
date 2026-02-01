@@ -22,7 +22,7 @@ rewards = [
     ("custom mini build", 5)          # 5%
 ]
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
@@ -101,5 +101,6 @@ async def spin(ctx):
 
 # Token από environment variable (DisCloud)
 TOKEN = os.getenv("DISCORD_TOKEN")
+
 
 bot.run(TOKEN)
