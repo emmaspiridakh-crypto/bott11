@@ -23,7 +23,12 @@ rewards = [
 ]
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="!", intents=intents)
+intents.message_content = True
+
+bot = commands.Bot(
+command_prefix="!", 
+intents=intents
+)
 
 
 def pick_reward():
@@ -103,6 +108,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 
 bot.run(TOKEN)
+
 
 
 
