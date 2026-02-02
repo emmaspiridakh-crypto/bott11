@@ -60,10 +60,8 @@ async def spin(ctx):
 
     # Έλεγχος καναλιού
     if ctx.channel.id != SPIN_CHANNEL_ID:
-        return await ctx.reply(
-            "❌ Μπορείς να κάνεις spin μόνο στο συγκεκριμένο κανάλι.",
-            ephemeral=True
-        )
+        return await ctx.sent("❌ Μπορείς να κάνεις spin μόνο στο συγκεκριμένο κανάλι.")
+    
 
     user = ctx.author
     now = datetime.utcnow()
@@ -104,4 +102,5 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 
 bot.run(TOKEN)
+
 
