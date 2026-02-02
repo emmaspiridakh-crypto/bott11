@@ -96,12 +96,14 @@ async def spin(ctx):
     if log_channel:
         await log_channel.send(f"🔔 {user} έκανε spin και κέρδισε: **{reward}**")
 
+# force redeploy
 
 # Token από environment variable (DisCloud)
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 
 bot.run(TOKEN)
+
 
 
 
