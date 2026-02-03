@@ -106,7 +106,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 bot.run(TOKEN)
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord.ui import Button, View
 import random
 import os
@@ -128,7 +128,7 @@ OWNER_ROLE_ID = 1465345430392017091
 MANAGEMENT_ROLE_ID = 1465360458537111582
 STAFF_ROLE_ID = 1467220345126654185
 
-AUTO_ROLE_ID = 1465357638593151331  # όποιο role θες να δίνεται αυτόματα
+AUTO_ROLE_ID = 1465360458537111582  # Αυτόματο role σε νέο μέλος
 
 # --- Helper Functions ---
 async def create_ticket_channel(member, category_id, name_prefix, allowed_roles):
@@ -148,7 +148,7 @@ async def create_ticket_channel(member, category_id, name_prefix, allowed_roles)
 
 # --- Panels ---
 async def create_support_panel(channel):
-    embed = discord.Embed(title="Support Panel", description="Πατήστε το κουμπί για να ανοίξετε ticket.", color=d8b83b)
+    embed = discord.Embed(title="Support Panel", description="Πατήστε το κουμπί για να ανοίξετε ticket.", color=0x00ff00)
     owner_button = Button(label="Owner Ticket", style=discord.ButtonStyle.red, custom_id="open_owner_ticket")
     support_button = Button(label="Support Ticket", style=discord.ButtonStyle.green, custom_id="open_support_ticket")
     view = View()
@@ -157,7 +157,7 @@ async def create_support_panel(channel):
     await channel.send(embed=embed, view=view)
 
 async def create_buy_panel(channel):
-    embed = discord.Embed(title="Buy Ticket Panel", description="Πατήστε το κουμπί για να ανοίξετε ticket.", color=d8b83b)
+    embed = discord.Embed(title="Buy Ticket Panel", description="Πατήστε το κουμπί για να ανοίξετε ticket.", color=0x00ff00)
     buy_button = Button(label="Buy", style=discord.ButtonStyle.green, custom_id="open_buy_ticket")
     order_button = Button(label="Order", style=discord.ButtonStyle.blurple, custom_id="open_order_ticket")
     reward_button = Button(label="Claim Reward", style=discord.ButtonStyle.gold, custom_id="open_reward_ticket")
@@ -173,7 +173,6 @@ async def on_member_join(member):
     # Auto-role
     role = member.guild.get_role(AUTO_ROLE_ID)
     await member.add_roles(role)
-    # Log
     log_channel = member.guild.get_channel(LOGS_CHANNEL_ID)
     await log_channel.send(f"➕ {member.mention} joined and got role {role.name}")
 
@@ -197,12 +196,13 @@ async def on_voice_state_update(member, before, after):
     log_channel = bot.get_channel(LOGS_CHANNEL_ID)
     guild = member.guild
     vc_category = guild.get_channel(SUPPORT_CATEGORY_ID)
+    # Δημιουργία Temporary VC όταν μπαίνει στο Support Call
     if after.channel and after.channel.id == SUPPORT_CALL_VC_ID:
         overwrites = {guild.default_role: discord.PermissionOverwrite(connect=False), member: discord.PermissionOverwrite(connect=True)}
         temp_vc = await guild.create_voice_channel(name=f"{member.name}-support", category=vc_category, overwrites=overwrites)
         await member.move_to(temp_vc)
         await log_channel.send(f"🎤 Temporary VC created for {member.mention}")
-    # Delete temp VC when empty
+    # Διαγραφή empty temp VC
     for channel in guild.voice_channels:
         if channel.category and channel.category.id == SUPPORT_CATEGORY_ID and len(channel.members) == 0 and channel.name.endswith("-support"):
             await channel.delete()
@@ -283,6 +283,19 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
     log_channel = ctx.guild.get_channel(LOGS_CHANNEL_ID)
     await log_channel.send(f"👢 {member.mention} kicked by {ctx.author.mention} Reason: {reason}")
+
+# --- Commands για να στέλνεις τα Panels ---
+@bot.command()
+@commands.has_any_role(CEO_ROLE_ID, OWNER_ROLE_ID)
+async def send_support_panel(ctx):
+    await create_support_panel(ctx.channel)
+    await ctx.send("✅ Support panel sent!", delete_after=5)
+
+@bot.command()
+@commands.has_any_role(CEO_ROLE_ID, OWNER_ROLE_ID)
+async def send_buy_panel(ctx):
+    await create_buy_panel(ctx.channel)
+    await ctx.send("✅ Buy panel sent!", delete_after=5)
 
 # --- Run Bot ---
 bot.run("PUT_YOUR_TOKEN_HERE")
